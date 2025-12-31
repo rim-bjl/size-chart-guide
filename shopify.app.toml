@@ -2,7 +2,7 @@
 
 client_id = "f5915544cbc0bd18d0af7381f3eb8ac6"
 name = "size-chart-guide"
-application_url = "https://occurs-urgent-inappropriate.trycloudflare.com"
+application_url = "https://size-chart-guide.vercel.app"
 embedded = true
 
 [build]
@@ -25,12 +25,12 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://occurs-urgent-inappropriate.trycloudflare.com/auth/callback",
-  "https://occurs-urgent-inappropriate.trycloudflare.com/auth/shopify/callback",
-  "https://occurs-urgent-inappropriate.trycloudflare.com/api/auth/callback"
+  "https://size-chart-guide.vercel.app/auth/callback",
+  "https://size-chart-guide.vercel.app/auth/shopify/callback",
+  "https://size-chart-guide.vercel.app/api/auth/callback"
 ]
 
 [app_proxy]
-url = "/api/size-chart"
+url = "https://size-chart-guide.vercel.app"
 subpath = "size-guide"
 prefix = "apps"
