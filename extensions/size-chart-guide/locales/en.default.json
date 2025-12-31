@@ -1,0 +1,18 @@
+{
+  "name": "Size Chart",
+  "settings": {
+    "button_text": {
+      "label": "Button Text"
+    },
+    "button_bg_color": {
+      "label": "Button Background Color"
+    },
+    "button_text_color": {
+      "label": "Button Text Color"
+    },
+    "app_url": {
+      "label": "App URL",
+      "info": "Your app's public URL"
+    }
+  }
+}

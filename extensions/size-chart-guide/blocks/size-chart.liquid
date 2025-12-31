@@ -1,0 +1,164 @@
+{%  comment  %} 
+  Size chart block for product pages
+{% endcomment %}
+
+<div class="size-chart-wrapper" data-product-id="{{ product.id }}">
+  <button
+    type="button"
+    class="size-chart-button"
+    data-size-chart-trigger
+    style="
+      background-color: {{ block.settings.button_bg_color }};
+      color: {{ block.settings.button_text_color }};
+      padding: 12px 24px;
+      border: 1px solid {{ block.settings.button_bg_color }}
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      margin: 10px 0;
+      transition: all 0.2s;
+    "
+    onmouseover="this.style.opacity='0.9'"
+    onmouseout="this.style.opacity='1'"
+  >
+    {{ block.settings.button_text |  default: "Size Guide" }}
+  </button>
+</div>
+<div 
+  id="size-chart-modal-{{ product.id }}" 
+  class="size-chart-modal"
+  style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);"
+  data-size-chart-modal
+>
+  <div 
+    class="size-chart-modal-content"
+    style="background-color: white; margin: 5% auto; padding: 30px; border-radius: 8px; max-width: 800px; max-height: 80vh; overflow-y: auto; position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"
+  >
+    <span 
+      class="size-chart-close"
+      data-size-chart-close
+      style="position: absolute; right: 20px; top: 20px; font-size: 28px; font-weight: bold; cursor: pointer; color: #666;"
+      onmouseover="this.style.color='#000'"
+      onmouseout="this.style.color='#666'"
+    >&times;</span>
+    
+    <div id="size-chart-content-{{ product.id }}">
+      <p style="text-align: center; color: #666; padding: 20px;">Loading size chart...</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const productId = '{{ product.id }}';
+  const appUrl = '{{ block.settings.app_url }}' || window.location.origin;
+  const trigger = document.querySelector('[data-size-chart-trigger]');
+  const modal = document.getElementById('size-chart-modal-{{ product.id }}');
+  const closeBtn = modal?.querySelector('[data-size-chart-close]');
+  const content = document.getElementById('size-chart-content-{{ product.id }}');
+
+  async function loadSizeChart() {
+    try {
+      const response = await fetch(`${appUrl}/apps/size-guide?productId=${productId}`);
+      const data = await response.json(); 
+      
+      if (data.chart) {
+        renderSizeChart(data.chart);
+      } else {
+        content.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">No size chart available.</p>';
+      }
+    } catch (error) {
+      console.error('Error loading size chart:', error);
+      content.innerHTML = '<p style="text-align: center; color: #d32f2f; padding: 20px;">Failed to load size chart.</p>';
+    }
+  }
+
+  function renderSizeChart(chart) {
+    const columns = chart.columns || [];
+    const rows = chart.rows || [];
+    
+    let html = `
+      <h2 style="margin: 0 0 10px 0; font-size: 24px; color: #333; font-weight: 600;">${chart.name || 'Size Guide'}</h2>
+      ${chart.description ? `<p style="color: #666; margin-bottom: 20px; line-height: 1.5;">${chart.description}</p>` : ''}
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+          <thead>
+            <tr style="background-color: #f5f5f5;">
+              ${columns.map(col => `<th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd; font-weight: 600;">${col}</th>`).join('')}
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map((row, i) => `
+              <tr style="border-bottom: 1px solid #eee; ${i % 2 === 0 ? 'background-color: #fafafa;' : ''}">
+                ${row.map((cell, idx) => `<td style="padding: 12px; ${idx === 0 ? 'font-weight: 600;' : ''}">${cell || '-'}</td>`).join('')}
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+    content.innerHTML = html;
+  }
+
+  if (trigger) {
+    trigger.addEventListener('click', function() {
+      modal.style.display = 'block';
+      document.body.style.overflow = 'hidden';
+      loadSizeChart();
+    });
+  }
+
+  function closeModal() {
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeModal);
+  }
+
+  if (modal) {
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) closeModal();
+    });
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && modal.style.display === 'block') closeModal();
+  });
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Size Chart",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button Text",
+      "default": "Size Guide"
+    },
+    {
+      "type": "color",
+      "id": "button_bg_color",
+      "label": "Button Background",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button Text Color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "url",
+      "id": "app_url",
+      "label": "App URL (leave blank for auto-detect)",
+      "info": "Your app's URL (e.g., https://your-app.fly.dev)"
+    }
+  ]
+}
+{% endschema %}

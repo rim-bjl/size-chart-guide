@@ -1,0 +1,36 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "f5915544cbc0bd18d0af7381f3eb8ac6"
+name = "size-chart-guide"
+application_url = "https://occurs-urgent-inappropriate.trycloudflare.com"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = true
+
+[webhooks]
+api_version = "2026-01"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "/webhooks/app/uninstalled"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/scopes_update" ]
+  uri = "/webhooks/app/scopes_update"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "write_products"
+
+[auth]
+redirect_urls = [
+  "https://occurs-urgent-inappropriate.trycloudflare.com/auth/callback",
+  "https://occurs-urgent-inappropriate.trycloudflare.com/auth/shopify/callback",
+  "https://occurs-urgent-inappropriate.trycloudflare.com/api/auth/callback"
+]
+
+[app_proxy]
+url = "/api/size-chart"
+subpath = "size-guide"
+prefix = "apps"
