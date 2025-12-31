@@ -2,7 +2,7 @@
 
 client_id = "f5915544cbc0bd18d0af7381f3eb8ac6"
 name = "size-chart-guide"
-application_url = "https://occurs-urgent-inappropriate.trycloudflare.com"
+application_url = "https://size-chart-guide.vercel.app"
 embedded = true
 
 [build]
