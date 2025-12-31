@@ -2,7 +2,7 @@
 
 client_id = "f5915544cbc0bd18d0af7381f3eb8ac6"
 name = "size-chart-guide"
-application_url = "https://size-chart-guide.vercel.app"
+application_url = "https://occurs-urgent-inappropriate.trycloudflare.com"
 embedded = true
 
 [build]
@@ -31,6 +31,6 @@ redirect_urls = [
 ]
 
 [app_proxy]
-url = "https://size-chart-guide.vercel.app"
+url = "https://size-chart-guide.vercel.app/api/size-chart"
 subpath = "size-guide"
 prefix = "apps"
