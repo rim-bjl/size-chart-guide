@@ -1,17 +1,23 @@
-import { type LoaderFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "react-router";
 import prisma from "../db.server";
-import { cors } from "remix-utils/cors";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const productId = url.searchParams.get("productId");
 
   if (!productId) {
-    const response = new Response(
+    return new Response(
       JSON.stringify({ error: "Product ID required" }), 
-      { status: 400, headers: { "Content-Type": "application/json" } }
+      { 
+        status: 400, 
+        headers: { 
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type"
+        } 
+      }
     );
-    return cors(request, response);
   }
 
   try {
@@ -20,14 +26,21 @@ export async function loader({ request }: LoaderFunctionArgs) {
     });
 
     if (!chart) {
-      const response = new Response(
+      return new Response(
         JSON.stringify({ chart: null }),
-        { status: 200, headers: { "Content-Type": "application/json" } }
+        { 
+          status: 200, 
+          headers: { 
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type"
+          } 
+        }
       );
-      return cors(request, response);
     }
 
-    const response = new Response(
+    return new Response(
       JSON.stringify({ 
         chart: {
           id: chart.id,
@@ -37,16 +50,29 @@ export async function loader({ request }: LoaderFunctionArgs) {
           rows: chart.rows
         }
       }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
+      { 
+        status: 200, 
+        headers: { 
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type"
+        } 
+      }
     );
-    
-    return cors(request, response);
   } catch (error) {
     console.error("Error fetching size chart:", error);
-    const response = new Response(
+    return new Response(
       JSON.stringify({ error: "Failed to load size chart" }), 
-      { status: 500, headers: { "Content-Type": "application/json" } }
+      { 
+        status: 500, 
+        headers: { 
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type"
+        } 
+      }
     );
-    return cors(request, response);
   }
 }
