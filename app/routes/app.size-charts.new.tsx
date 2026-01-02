@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useFetcher, useNavigate } from "react-router";
 import type { ActionFunctionArgs } from "react-router";
 import {
@@ -13,20 +13,19 @@ import {
   InlineStack,
   Box,
   Text,
-  Bleed,
   Divider,
-  Icon,
 } from "@shopify/polaris";
-import { PlusIcon, DeleteIcon, SaveIcon } from "@shopify/polaris-icons";
+import { PlusIcon, DeleteIcon, SaveIcon, ProductIcon } from "@shopify/polaris-icons";
+import { useAppBridge } from "@shopify/app-bridge-react";
 import prisma from "app/db.server";
 import { authenticate } from "app/shopify.server";
 
 export async function action({ request }: ActionFunctionArgs) {
   await authenticate.admin(request);
   const body = await request.json();
-  const { name, description, columns, rows } = body;
+  const { name, description, columns, rows, productIds } = body;
 
-  if (!name || typeof name !== "string") {
+  if (!name) {
     return Response.json({ error: "Name is required" }, { status: 400 });
   }
 
@@ -37,6 +36,12 @@ export async function action({ request }: ActionFunctionArgs) {
         description: description || null,
         columns,
         rows,
+        products: {
+          connectOrCreate: (productIds || []).map((id: string) => ({
+            where: { id },
+            create: { id },
+          })),
+        },
       },
     });
     return Response.json({ success: true, id: sizeChart.id });
@@ -46,6 +51,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function NewSizeChartPage() {
+  const shopify = useAppBridge();
   const fetcher = useFetcher();
   const navigate = useNavigate();
   const [selectedTab, setSelectedTab] = useState(0);
@@ -58,6 +64,7 @@ export default function NewSizeChartPage() {
     ["M", "38-40", "32-34"],
   ]);
   const [newColumnName, setNewColumnName] = useState("");
+  const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
 
   const isSubmitting = fetcher.state !== "idle";
 
@@ -101,16 +108,28 @@ export default function NewSizeChartPage() {
     setRows(newRows);
   };
 
+  const handleSelectProducts = async () => {
+    const selection = await shopify.resourcePicker({
+      type: "product",
+      multiple: true,
+    });
+    if (selection) {
+      setSelectedProductIds(selection.map((p) => p.id));
+    }
+  };
+
   const handleSubmit = () => {
     fetcher.submit(
-      { name, description, columns, rows },
+      { name, description, columns, rows, productIds: selectedProductIds },
       { method: "POST", encType: "application/json" }
     );
   };
 
-  if (fetcher.data?.success) {
-    navigate("/app/size-charts");
-  }
+  useEffect(() => {
+    if (fetcher.data?.success) {
+      navigate("/app/size-charts");
+    }
+  }, [fetcher.data, navigate]);
 
   return (
     <Page
@@ -145,6 +164,23 @@ export default function NewSizeChartPage() {
                         multiline={3}
                         autoComplete="off"
                       />
+                    </BlockStack>
+                  </Card>
+
+                  <Card>
+                    <BlockStack gap="300">
+                      <Text as="h2" variant="headingSm">Linked Products</Text>
+                      <Text as="p" tone="subdued">Select which products will display this size chart.</Text>
+                      <InlineStack gap="300">
+                        <Button icon={ProductIcon} onClick={handleSelectProducts}>
+                          Select Products
+                        </Button>
+                        {selectedProductIds.length > 0 && (
+                          <Text as="span" variant="bodyMd" fontWeight="bold">
+                            {selectedProductIds.length} products selected
+                          </Text>
+                        )}
+                      </InlineStack>
                     </BlockStack>
                   </Card>
 

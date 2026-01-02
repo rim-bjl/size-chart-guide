@@ -12,67 +12,32 @@ export async function loader({ request }: LoaderFunctionArgs) {
         status: 400, 
         headers: { 
           "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type"
+          "Access-Control-Allow-Origin": "*"
         } 
       }
     );
   }
 
   try {
-    const chart = await prisma.sizeChart.findFirst({
-      orderBy: { createdAt: "desc" }
+    const productWithChart = await prisma.product.findUnique({
+      where: { id: productId },
+      include: { chart: true }
     });
 
-    if (!chart) {
-      return new Response(
-        JSON.stringify({ chart: null }),
-        { 
-          status: 200, 
-          headers: { 
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type"
-          } 
-        }
-      );
-    }
-
     return new Response(
-      JSON.stringify({ 
-        chart: {
-          id: chart.id,
-          name: chart.name,
-          description: chart.description,
-          columns: chart.columns,
-          rows: chart.rows
-        }
-      }),
+      JSON.stringify({ chart: productWithChart?.chart || null }),
       { 
         status: 200, 
         headers: { 
           "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type"
+          "Access-Control-Allow-Origin": "*"
         } 
       }
     );
   } catch (error) {
-    console.error("Error fetching size chart:", error);
     return new Response(
       JSON.stringify({ error: "Failed to load size chart" }), 
-      { 
-        status: 500, 
-        headers: { 
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type"
-        } 
-      }
+      { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
 }

@@ -34,10 +34,17 @@ model Session {
 }
 
 model SizeChart {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   name        String
   description String?
   columns     Json
   rows        Json
-  createdAt   DateTime @default(now())
+  createdAt   DateTime  @default(now())
+    products    Product[] 
+}
+
+model Product {
+  id          String      @id
+  chart       SizeChart?  @relation(fields: [chartId], references: [id])
+  chartId     String?
 }

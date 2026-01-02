@@ -19,6 +19,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   await authenticate.admin(request);
   const sizeChart = await prisma.sizeChart.findUnique({
     where: { id: params.id },
+    include: { _count: { select: { products: true } } }
   });
   if (!sizeChart) throw new Response("Not Found", { status: 404 });
   return { sizeChart };
