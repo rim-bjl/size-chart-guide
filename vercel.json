@@ -4,9 +4,6 @@
   "installCommand": "npm install",
   "framework": null,
   "outputDirectory": "build/client",
-  "serverFunctions": {
-    "directory": "build/server"
-  },
   "rewrites": [
     {
       "source": "/api/:path*",
