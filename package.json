@@ -2,6 +2,7 @@
   "name": "size-chart-guide",
   "private": true,
   "scripts": {
+    "postinstall": "prisma generate",
     "build": "react-router build",
     "dev": "shopify app dev",
     "config:link": "shopify app config link",
@@ -42,7 +43,6 @@
   },
   "devDependencies": {
     "@react-router/dev": "^7.9.3",
-    "@remix-run/dev": "^2.17.2",
     "@shopify/api-codegen-preset": "^1.2.0",
     "@shopify/polaris-types": "^1.0.1",
     "@types/eslint": "^9.6.1",
