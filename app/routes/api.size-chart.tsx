@@ -3,19 +3,14 @@ import prisma from "../db.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
-  const productId = url.searchParams.get("productId");
+  let productId = url.searchParams.get("productId");
 
   if (!productId) {
-    return new Response(
-      JSON.stringify({ error: "Product ID required" }), 
-      { 
-        status: 400, 
-        headers: { 
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*"
-        } 
-      }
-    );
+    return new Response(JSON.stringify({ error: "Product ID required" }), { status: 400 });
+  }
+
+  if (!productId.startsWith("gid://")) {
+    productId = `gid://shopify/Product/${productId}`;
   }
 
   try {
@@ -37,7 +32,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   } catch (error) {
     return new Response(
       JSON.stringify({ error: "Failed to load size chart" }), 
-      { status: 500, headers: { "Content-Type": "application/json" } }
+      { status: 500 }
     );
   }
 }
