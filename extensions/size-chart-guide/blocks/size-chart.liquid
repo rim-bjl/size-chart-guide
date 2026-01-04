@@ -11,7 +11,7 @@
       background-color: {{ block.settings.button_bg_color }};
       color: {{ block.settings.button_text_color }};
       padding: 12px 24px;
-      border: 1px solid {{ block.settings.button_bg_color }}
+      border: 1px solid {{ block.settings.button_bg_color }};
       border-radius: 4px;
       cursor: pointer;
       font-size: 14px;
@@ -28,17 +28,17 @@
 <div 
   id="size-chart-modal-{{ product.id }}" 
   class="size-chart-modal"
-  style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);"
+  style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center;"
   data-size-chart-modal
 >
   <div 
     class="size-chart-modal-content"
-    style="background-color: white; margin: 5% auto; padding: 30px; border-radius: 8px; max-width: 800px; max-height: 80vh; overflow-y: auto; position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"
+    style="background-color: white; padding: 30px; border-radius: 8px; width: 90%; max-width: 800px; max-height: 85vh; overflow-y: auto; position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.2); margin: auto;"
   >
     <span 
       class="size-chart-close"
       data-size-chart-close
-      style="position: absolute; right: 20px; top: 20px; font-size: 28px; font-weight: bold; cursor: pointer; color: #666;"
+      style="position: absolute; right: 20px; top: 20px; font-size: 28px; font-weight: bold; cursor: pointer; color: #666; line-height: 1;"
       onmouseover="this.style.color='#000'"
       onmouseout="this.style.color='#666'"
     >&times;</span>
@@ -60,13 +60,14 @@
 
   async function loadSizeChart() {
     try {
-      const response = await fetch(`${appUrl}/apps/size-guide?productId=${productId}`);
+      const gid = productId.startsWith('gid://') ? productId : `gid://shopify/Product/${productId}`;
+      const response = await fetch(`${appUrl}/apps/size-guide?productId=${encodeURIComponent(gid)}`);
       const data = await response.json(); 
       
       if (data.chart) {
         renderSizeChart(data.chart);
       } else {
-        content.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">No size chart available.</p>';
+        content.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">No size chart available for this product.</p>';
       }
     } catch (error) {
       console.error('Error loading size chart:', error);
@@ -103,7 +104,7 @@
 
   if (trigger) {
     trigger.addEventListener('click', function() {
-      modal.style.display = 'block';
+      modal.style.display = 'flex';
       document.body.style.overflow = 'hidden';
       loadSizeChart();
     });
@@ -125,7 +126,7 @@
   }
 
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && modal.style.display === 'block') closeModal();
+    if (e.key === 'Escape' && modal.style.display === 'flex') closeModal();
   });
 })();
 </script>
